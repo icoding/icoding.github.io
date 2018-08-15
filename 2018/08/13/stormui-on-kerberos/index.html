@@ -402,11 +402,10 @@ height:50vh;
     <article class="article-entry">
         <h3 id="windows访问stormUI"><a href="#windows访问stormUI" class="headerlink" title="windows访问stormUI"></a>windows访问stormUI</h3><p>前提：请确保hosts文件已经配置好<br>参考文档:<br><a href="https://community.hortonworks.com/content/kbentry/28537/user-authentication-from-windows-workstation-to-hd.html" target="_blank" rel="noopener">https://community.hortonworks.com/content/kbentry/28537/user-authentication-from-windows-workstation-to-hd.html</a></p>
 <p>测试步骤：<br>安装MIT Kerberos客户端(windows版)<br>安装windows版火狐浏览器<br>在火狐中启用Kerberos支持<br>通过Kerberos客户端获得kerberos票据<br>通过火狐打开storm ui界面  </p>
-<h4 id="安装MIT-Kerberos客户端-windows版"><a href="#安装MIT-Kerberos客户端-windows版" class="headerlink" title="安装MIT Kerberos客户端(windows版)"></a>安装MIT Kerberos客户端(windows版)</h4><p>64位版下载地址：<a href="http://web.mit.edu/kerberos/dist/kfw/4.0/kfw-4.0.1-amd64.msi" target="_blank" rel="noopener">http://web.mit.edu/kerberos/dist/kfw/4.0/kfw-4.0.1-amd64.msi</a><br>安装的默认目录是C:\Program Files\MIT\Kerberos。<br>为避免意外使用complete模式安装,直接下一步即可。<br><img src="s-o-k1.png" alt=""></p>
-<h4 id="添加环境变量"><a href="#添加环境变量" class="headerlink" title="添加环境变量"></a>添加环境变量</h4><p>软件安装完成后它就自动的在 PATH 里面加上了自己的环境变量。<br>但是如果系统以及安装了oracle jdk ，那么oraclejdk里面也会带 kinit, ktab, klist 等软件，所以为了避免调用错误，将新建的kerberos环境变量放在前面。<br>如下：  C:\Program Files\MIT\Kerberos\bin;C:\ProgramData\Oracle\Java\javapath;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\;<br>如图：可以手动将windows环境变量中的安装的mit放到最前面。  </p>
-<h4 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h4><p>将HDP集群的/etc/krb5.conf复制到一个目录（该用户有该目录的权限）下，改名为krb5.ini。<br>在windows下添加两个环境变量：<br>KRB5_CONFIG=C:\etc\krb5.ini<br>KRB5CCNAME=C:\etc\tmp\krb5cache<br>其中etc\tmp目录必须有写权限  </p>
-<h4 id="使用keytab进行认证"><a href="#使用keytab进行认证" class="headerlink" title="使用keytab进行认证"></a>使用keytab进行认证</h4><p>hdp 集群中storm ui安装在100机器上，进入机器/etc/security/keytabs/目录<br>可以找到spnego.service.keytab、storm.headless.keytab<br>其中storm.headless.keytab对应princal 是<a href="mailto:storm-jn@JN.IN" target="_blank" rel="noopener">storm-jn@JN.IN</a> 对storm进行认证<br>spnego.service.keytab 对应princal 是<a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a><br>此处将这两个keytab下载到本地  </p>
-<p>在cmd中进行kinit操作<br>kinit -kt C:\etc\spnego.service.keytab <a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a></p>
+<h4 id="安装MIT-Kerberos客户端-windows版"><a href="#安装MIT-Kerberos客户端-windows版" class="headerlink" title="安装MIT Kerberos客户端(windows版)"></a>安装MIT Kerberos客户端(windows版)</h4><p>64位版下载地址：<a href="http://web.mit.edu/kerberos/dist/kfw/4.0/kfw-4.0.1-amd64.msi" target="_blank" rel="noopener">http://web.mit.edu/kerberos/dist/kfw/4.0/kfw-4.0.1-amd64.msi</a><br>安装的默认目录是C:\Program Files\MIT\Kerberos。<br>为避免意外使用complete模式安装,直接下一步即可。<br><img src="1.png" alt=""></p>
+<h4 id="添加环境变量"><a href="#添加环境变量" class="headerlink" title="添加环境变量"></a>添加环境变量</h4><p>软件安装完成后它就自动的在 PATH 里面加上了自己的环境变量。<br>但是如果系统以及安装了oracle jdk ，那么oraclejdk里面也会带 kinit, ktab, klist 等软件，所以为了避免调用错误，将新建的kerberos环境变量放在前面。<br>如下：  C:\Program Files\MIT\Kerberos\bin;C:\ProgramData\Oracle\Java\javapath;  %SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;  %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\;<br>如图：可以手动将windows环境变量中的安装的mit放到最前面。<br><img src="2.png" alt=""></p>
+<h4 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h4><p>将HDP集群的/etc/krb5.conf复制到一个目录（该用户有该目录的权限）下，改名为krb5.ini。<br>在windows下添加两个环境变量：<br>KRB5_CONFIG=C:\etc\krb5.ini<br>KRB5CCNAME=C:\etc\tmp\krb5cache<br>其中etc\tmp目录必须有写权限<br><img src="3.png" alt=""><br><img src="4.png" alt=""></p>
+<h4 id="使用keytab进行认证"><a href="#使用keytab进行认证" class="headerlink" title="使用keytab进行认证"></a>使用keytab进行认证</h4><p>hdp 集群中storm ui安装在100机器上，进入机器/etc/security/keytabs/目录<br>可以找到spnego.service.keytab、storm.headless.keytab<br>其中storm.headless.keytab对应princal 是<a href="mailto:storm-jn@JN.IN" target="_blank" rel="noopener">storm-jn@JN.IN</a> 对storm进行认证<br>spnego.service.keytab 对应princal 是<a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a><br>此处将这两个keytab下载到本地<br><img src="5.png" alt=""><br><img src="6.png" alt=""><br>在cmd中进行kinit操作<br>kinit -kt C:\etc\spnego.service.keytab <a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a></p>
 <h4 id="在火狐浏览器中验证"><a href="#在火狐浏览器中验证" class="headerlink" title="在火狐浏览器中验证"></a>在火狐浏览器中验证</h4><ol>
 <li>安装windows版火狐浏览器<br><strong>注意！此处验证使用的是32位浏览器，64位浏览器目前无法通过下述方式验证成功</strong>  </li>
 <li>在火狐中启用Kerberos支持<br>参考 <a href="http://storm.apache.org/releases/1.1.2/SECURITY.html#ui-logviewer" target="_blank" rel="noopener">http://storm.apache.org/releases/1.1.2/SECURITY.html#ui-logviewer</a><br><a href="https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.4/bk_security/content/secure-storm-ui.html" target="_blank" rel="noopener">https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.4/bk_security/content/secure-storm-ui.html</a><br>firefox 浏览器,输入 about:config 修改如下配置项  <ol>
@@ -415,15 +414,15 @@ height:50vh;
 <li>network.negotiate-auth.delegation.uris = <a href="http://bgs-4p100-jiangnan:8744" target="_blank" rel="noopener">http://bgs-4p100-jiangnan:8744</a></li>
 <li>network.negotiate-auth.using-native-gsslib = false</li>
 <li>network.negotiate-auth.gsslib = C:\Program Files\MIT\Kerberos\bin\gssapi32.dll</li>
-<li>network.negotiate-auth.allow-non-fqdn = true<br>如图：  </li>
+<li>network.negotiate-auth.allow-non-fqdn = true<br>如图：<br><img src="7.png" alt=""></li>
 </ol>
 </li>
-<li>打开火狐输入地址：<a href="http://bgs-4p232-luojingzhi:8744/index.html" target="_blank" rel="noopener">http://bgs-4p232-luojingzhi:8744/index.html</a><br>如图</li>
+<li>打开火狐输入地址：<a href="http://bgs-4p232-luojingzhi:8744/index.html" target="_blank" rel="noopener">http://bgs-4p232-luojingzhi:8744/index.html</a><br>如图<br><img src="8.png" alt=""></li>
 </ol>
 <h3 id="mac系统访问stormUI"><a href="#mac系统访问stormUI" class="headerlink" title="mac系统访问stormUI"></a>mac系统访问stormUI</h3><p>前提，本地配置好集群host</p>
-<h4 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h4><p>将HDP集群的/etc/krb5.conf 下载到本地，放置到/etc 目录下<br>如图：</p>
-<h4 id="使用keytab进行认证-1"><a href="#使用keytab进行认证-1" class="headerlink" title="使用keytab进行认证"></a>使用keytab进行认证</h4><p>hdp 集群中storm ui安装在100上，进入100   /etc/security/keytabs/<br>可以找到spnego.service.keytab、storm.headless.keytab<br>其中storm.headless.keytab对应princal 是<a href="mailto:storm-jn@JN.IN" target="_blank" rel="noopener">storm-jn@JN.IN</a> 对storm进行认证<br>spnego.service.keytab 对应princal 是<a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a><br>此处将这两个keytab下载到本地<br>使用kinit命令<br>kinit -kt storm.headless.keytab storm-bfdbdos</p>
-<h4 id="在safari浏览器中验证"><a href="#在safari浏览器中验证" class="headerlink" title="在safari浏览器中验证"></a>在safari浏览器中验证</h4><p>打开safari输入地址：<a href="http://bgs-4p100-jiangnan:8744/index.html" target="_blank" rel="noopener">http://bgs-4p100-jiangnan:8744/index.html</a><br>如图</p>
+<h4 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h4><p>将HDP集群的/etc/krb5.conf 下载到本地，放置到/etc 目录下<br>如图：<br><img src="9.png" alt=""></p>
+<h4 id="使用keytab进行认证-1"><a href="#使用keytab进行认证-1" class="headerlink" title="使用keytab进行认证"></a>使用keytab进行认证</h4><p>hdp 集群中storm ui安装在100上，进入100   /etc/security/keytabs/<br>可以找到spnego.service.keytab、storm.headless.keytab<br>其中storm.headless.keytab对应princal 是<a href="mailto:storm-jn@JN.IN" target="_blank" rel="noopener">storm-jn@JN.IN</a> 对storm进行认证<br>spnego.service.keytab 对应princal 是<a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a><br>此处将这两个keytab下载到本地<br><img src="10.png" alt=""><br>使用kinit命令<br>kinit -kt storm.headless.keytab storm-bfdbdos</p>
+<h4 id="在safari浏览器中验证"><a href="#在safari浏览器中验证" class="headerlink" title="在safari浏览器中验证"></a>在safari浏览器中验证</h4><p>打开safari输入地址：<a href="http://bgs-4p100-jiangnan:8744/index.html" target="_blank" rel="noopener">http://bgs-4p100-jiangnan:8744/index.html</a><br>如图<br><img src="11.png" alt=""></p>
 
     </article>
     <!-- license  -->
@@ -612,8 +611,6 @@ top:50vh;
     
     
     
-    
-    
     <div class="total-and-search">
         <div class="total-archive">
         Total : 4
@@ -664,6 +661,12 @@ top:50vh;
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
     
+        <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
+    
+        <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
+    
+        <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
+    
         <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
     
         <span class="sidebar-tag-name" data-tags="数据结构"><span class="iconfont-archer">&#xe606;</span>数据结构</span>
@@ -673,12 +676,6 @@ top:50vh;
         <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
     
         <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
-    
-        <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
-    
-        <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
-    
-        <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
