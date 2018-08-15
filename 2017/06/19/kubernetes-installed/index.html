@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    <meta name="keywords" content="Hexo | John Doe">
+    <meta name="description" content="">
+    <meta name="Cache-Control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Kubernetes入门与基础组件简介 · 江南</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180721 as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= /css/mobile.css?v=20180721 media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >江南.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Kubernetes入门与基础组件简介</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>江南.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:50vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Kubernetes入门与基础组件简介
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "kubernetes">kubernetes</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "docker">docker</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count">1,899</span> / Reading time: <span class="post-count">10 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2017/06/19</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="安装-etcd-k8s-docker"><a href="#安装-etcd-k8s-docker" class="headerlink" title="安装 etcd k8s docker"></a>安装 etcd k8s docker</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y etcd kubernetes</span><br></pre></td></tr></table></figure>
+<h2 id="安装go环境"><a href="#安装go环境" class="headerlink" title="安装go环境"></a>安装go环境</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz</span><br><span class="line">tar zxvf go.tar.gz</span><br><span class="line">mv go /usr/local</span><br><span class="line">vim /etc/profile</span><br><span class="line">export PATH=$PATH:/usr/local/go/bin</span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<h2 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">启动etcd</span><br><span class="line">systemctl start etcd</span><br><span class="line">启动docker</span><br><span class="line">systemctl start docker</span><br><span class="line">启动kubernetes</span><br><span class="line">systemctl start kube-apiserver #提供资源对象操作入口 如提交一个创建rc 的命令</span><br><span class="line">systemctl start kube-controller-manager  #内部管理，自动化工作，如根据rc定义完成pod 复制 根据service 与pod关系完成endpoint创建， node发现 等</span><br><span class="line">systemctl start kube-scheduler #调度器负责pod调度分配</span><br><span class="line">systemctl start kubelet #负责本node节点上pod 的创建、修改、监控、删除 生命周期管理</span><br><span class="line">systemctl start kube-proxy #service 的代理 软件模式的负载均衡</span><br></pre></td></tr></table></figure>
+<h2 id="hello-world-demo"><a href="#hello-world-demo" class="headerlink" title="hello world demo"></a>hello world demo</h2><p>创建文件夹 kube<br>cd kube</p>
+<h3 id="创建redis-master"><a href="#创建redis-master" class="headerlink" title="创建redis-master"></a>创建redis-master</h3><h4 id="创建replicationController"><a href="#创建replicationController" class="headerlink" title="创建replicationController"></a>创建replicationController</h4><p>vim redis-master-controller.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-master</span><br><span class="line">  labels:</span><br><span class="line">    name: redis-master</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  selector:</span><br><span class="line">    name: redis-master  #标识对 label为 redis-master 的pod 进行管理</span><br><span class="line">  template: 		#用于定义pod 与单独定义pod一样</span><br><span class="line">  	metadata:</span><br><span class="line">  	  labels:</span><br><span class="line">  	    name: redis-master  # 定义label为redis-master 的pod</span><br><span class="line">  	spec:</span><br><span class="line">  	  containers:</span><br><span class="line">  	  - name: master</span><br><span class="line">  	    image: kubeguide/redis-master</span><br><span class="line">  	    ports:</span><br><span class="line">  	    - containerPort: 6379</span><br></pre></td></tr></table></figure></p>
+<p>创建replicationcontroller<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f redis-master-controller.yaml</span><br></pre></td></tr></table></figure></p>
+<p>提示创建成功后查看rc<br>kubectl get rc<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">NAME           DESIRED   CURRENT   READY     AGE</span><br><span class="line">redis-master   1         0         0         3m</span><br><span class="line">kubectl describe rc redis-master</span><br><span class="line">Name:           redis-master</span><br><span class="line">Namespace:      default</span><br><span class="line">Image(s):       kubeguide/redis-master</span><br><span class="line">Selector:       name=redis-master</span><br><span class="line">Labels:         name=redis-master</span><br><span class="line">Replicas:       0 current / 1 desired</span><br><span class="line">Pods Status:    0 Running / 0 Waiting / 0 Succeeded / 0 Failed</span><br><span class="line">No volumes.</span><br><span class="line">Events:</span><br><span class="line">  FirstSeen     LastSeen        Count   From                            SubObjectPath   Type            Reason          Message</span><br><span class="line">  ---------     --------        -----   ----                            -------------   --------        ------          -------</span><br><span class="line">  4m            1m              16      &#123;replication-controller &#125;                       Warning         FailedCreate    Error creating: No API token found for service account &quot;default&quot;, retry after the token is automatically created and added to the service account</span><br></pre></td></tr></table></figure></p>
+<p>查看创建有异常 No API token found for service account<br>解决办法：<br>cd /etc/kubernetes<br>vim apiserver<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">KUBE_ADMISSION_CONTROL=&quot;--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota&quot;</span><br><span class="line">修改为</span><br><span class="line">KUBE_ADMISSION_CONTROL=&quot;--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota&quot;</span><br></pre></td></tr></table></figure></p>
+<p>重启服务<br>systemctl restart kube-apiserver<br>错误日志可以在 /var/log/messages 查看<br>删除 之前的redis-master 重新创建<br>kubectl delete -f redis-master-controller.yaml<br>kubectl create -f redis-master-controller.yaml<br>查看redis-master 信息<br>kubectl describe replicationcontrollers/redis-master<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Name:           redis-master</span><br><span class="line">Namespace:      default</span><br><span class="line">Image(s):       kubeguide/redis-master</span><br><span class="line">Selector:       name=redis-master</span><br><span class="line">Labels:         name=redis-master</span><br><span class="line">Replicas:       1 current / 1 desired</span><br><span class="line">Pods Status:    1 Running / 0 Waiting / 0 Succeeded / 0 Failed</span><br><span class="line">No volumes.</span><br><span class="line">Events:</span><br><span class="line">  FirstSeen     LastSeen        Count   From                            SubObjectPath   Type            Reason                  Message</span><br><span class="line">  ---------     --------        -----   ----                            -------------   --------        ------                  -------</span><br><span class="line">  21s           21s             1       &#123;replication-controller &#125;                       Normal          SuccessfulCreate        Created pod: redis-master-7w07m</span><br></pre></td></tr></table></figure></p>
+<p>查看pods信息 kubectl get pods<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NAME                                  READY     STATUS    RESTARTS   AGE</span><br><span class="line">kubernetes-bootcamp-390780338-gvcwp   1/1       Running   0          2m</span><br><span class="line">redis-master-7w07m                    1/1       Running   0          9s</span><br></pre></td></tr></table></figure></p>
+<p>如果需要对replicas 扩容 使用命令：<br>kubectl scale rc redis-master –replicas=3<br>删除 RC并不会影响已经创建好的Pod</p>
+<h4 id="创建Service用于代理pod"><a href="#创建Service用于代理pod" class="headerlink" title="创建Service用于代理pod"></a>创建Service用于代理pod</h4><p>pod 的生命周期相对短可能会被频繁创建，service生命周期长，<br>创建service 用来代理pods<br>编写文件 redis-master-service.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-master</span><br><span class="line">  labels:</span><br><span class="line">    name: redis-master</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">  - port: 6379</span><br><span class="line">    targetPort: 6379</span><br><span class="line">  selector:</span><br><span class="line">    name: redis-master  #选择 label为 redis-master的pod 做 loadbalance</span><br></pre></td></tr></table></figure></p>
+<p>验证创建：<br>kubectl get service redis-master<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NAME           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE</span><br><span class="line">redis-master   10.254.199.198   &lt;none&gt;        6379/TCP   1m</span><br></pre></td></tr></table></figure></p>
+<p>4.2.创建redis-slave<br>创建redis-salve rc<br>vim redis-slave-controller.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-slave</span><br><span class="line">  labels:</span><br><span class="line">    name: redis-slave</span><br><span class="line">spec:</span><br><span class="line">  replicas: 2</span><br><span class="line">  selector:</span><br><span class="line">    name: redis-slave</span><br><span class="line">  template:</span><br><span class="line">        metadata:</span><br><span class="line">          labels:</span><br><span class="line">            name: redis-slave</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: slave</span><br><span class="line">            image: kubeguide/guestbook-redis-slave</span><br><span class="line">            env:</span><br><span class="line">            - name: GET_HOSTS_FROM</span><br><span class="line">              value: env</span><br><span class="line">            ports:</span><br><span class="line">            - containerPort: 6379</span><br></pre></td></tr></table></figure></p>
+<p>创建 kubectl create -f redis-slave-controller.yaml<br>验证rc kubectl describe rc redis-slave<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Name:           redis-slave</span><br><span class="line">Namespace:      default</span><br><span class="line">Image(s):       kubeguide/guestbook-redis-slave</span><br><span class="line">Selector:       name=redis-slave</span><br><span class="line">Labels:         name=redis-slave</span><br><span class="line">Replicas:       2 current / 2 desired</span><br><span class="line">Pods Status:    2 Running / 0 Waiting / 0 Succeeded / 0 Failed</span><br><span class="line">No volumes.</span><br><span class="line">Events:</span><br><span class="line">  FirstSeen     LastSeen        Count   From                            SubObjectPath   Type            Reason                  Message</span><br><span class="line">  ---------     --------        -----   ----                            -------------   --------        ------                  -------</span><br><span class="line">  2m            2m              1       &#123;replication-controller &#125;                       Normal          SuccessfulCreate        Created pod: redis-slave-089b8</span><br><span class="line">  2m            2m              1       &#123;replication-controller &#125;                       Normal          SuccessfulCreate        Created pod: redis-slave-mgwz2</span><br></pre></td></tr></table></figure></p>
+<p>验证pods kubectl get pods<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">NAME                                  READY     STATUS    RESTARTS   AGE</span><br><span class="line">kubernetes-bootcamp-390780338-gvcwp   1/1       Running   0          53m</span><br><span class="line">redis-master-7w07m                    1/1       Running   0          51m</span><br><span class="line">redis-slave-089b8                     1/1       Running   0          13m</span><br><span class="line">redis-slave-mgwz2                     1/1       Running   0          13m</span><br></pre></td></tr></table></figure></p>
+<p>创建redis-slave service<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-slave</span><br><span class="line">  labels:</span><br><span class="line">    name: redis-slave</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">  - port: 6379</span><br><span class="line">    targetPort: 6379</span><br><span class="line">  selector:</span><br><span class="line">    name: redis-slave</span><br></pre></td></tr></table></figure></p>
+<p>创建 kubectl create -f redis-slave-service.yaml<br>验证 service kubectl describe service redis-slave<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Name:                   redis-slave</span><br><span class="line">Namespace:              default</span><br><span class="line">Labels:                 name=redis-slave</span><br><span class="line">Selector:               name=redis-slave</span><br><span class="line">Type:                   ClusterIP</span><br><span class="line">IP:                     10.254.87.58</span><br><span class="line">Port:                   &lt;unset&gt; 6379/TCP</span><br><span class="line">Endpoints:              172.17.0.4:6379,172.17.0.5:6379</span><br><span class="line">Session Affinity:       None</span><br><span class="line">No events.</span><br></pre></td></tr></table></figure></p>
+<h3 id="创建frontend"><a href="#创建frontend" class="headerlink" title="创建frontend"></a>创建frontend</h3><p>创建 frontend-controller.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: fontend</span><br><span class="line">  labels:</span><br><span class="line">    name: fontend</span><br><span class="line">spec:</span><br><span class="line">  replicas: 3</span><br><span class="line">  selector:</span><br><span class="line">    name: fontend</span><br><span class="line">  template:</span><br><span class="line">        metadata:</span><br><span class="line">          labels:</span><br><span class="line">            name: fontend</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: fontend</span><br><span class="line">            image: kubeguide/guestbook-php-frontend</span><br><span class="line">            env:</span><br><span class="line">            - name: GET_HOSTS_FROM</span><br><span class="line">              value: env</span><br><span class="line">            ports:</span><br><span class="line">            - containerPort: 80</span><br></pre></td></tr></table></figure></p>
+<p>创建 frontend-service.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: fontend</span><br><span class="line">  labels:</span><br><span class="line">    name: fontend</span><br><span class="line">spec:</span><br><span class="line">  type: NodePort #此处nodeport 会在每个 node创建，如本例子开启3个replicas 则3个node都会有 单独的ip和同样的端口 另一种方式叫LoadBalancer</span><br><span class="line">  ports:</span><br><span class="line">  - port: 80</span><br><span class="line">    nodePort: 30001 #30000 ~ 32767</span><br><span class="line">  selector:</span><br><span class="line">    name: fontend</span><br><span class="line">kubectl create -f frontend-controller.yaml</span><br><span class="line">kubectl create -f frontend-service.yaml</span><br></pre></td></tr></table></figure></p>
+<p>验证 rd pods service<br>浏览器打开<a href="http://172.24.8.36:30001/" target="_blank" rel="noopener">http://172.24.8.36:30001/</a>  验证是否成功</p>
+<h2 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h2><h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><p>创建一个namespace<br>vim namespace-dev.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Namespace</span><br><span class="line">metadata:</span><br><span class="line">  name: development</span><br><span class="line">kubectl create -f namespace-dev.yaml</span><br><span class="line">kubectl get namespace</span><br><span class="line">NAME          STATUS    AGE</span><br><span class="line">default       Active    1d</span><br><span class="line">development   Active    7s</span><br><span class="line">kube-system   Active    1d</span><br><span class="line">可以对上述服务进行指定namespace 在metadata中指定如：</span><br><span class="line">metedata:</span><br><span class="line">  name:fontend</span><br><span class="line">  namespace:development</span><br></pre></td></tr></table></figure></p>
+<h3 id="volume"><a href="#volume" class="headerlink" title="volume"></a>volume</h3><p>volume是能被多个pod使用的共享存储：<br>EmptyDir 临时目录<br>hostPath 宿主机的文件或者目录 注意： 如果在不同node上运行的pod 对于hostpath访问数据可能不一样<br>gcePersistentDisk awsElasticBlockStore nfs iscsi glusterfs rdb gitRepo secret persistentVolumeClaim<br>使用方式如下 以rc hostPath 举例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: redis-master</span><br><span class="line">  labels:</span><br><span class="line">    name: redis-master</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  selector:</span><br><span class="line">    name: redis-master  #标识对 label为 redis-master 的pod 进行管理</span><br><span class="line">  template: 		#用于定义pod 与单独定义pod一样</span><br><span class="line">  	metadata:</span><br><span class="line">  	  labels:</span><br><span class="line">  	    name: redis-master  # 定义label为redis-master 的pod</span><br><span class="line">  	spec:</span><br><span class="line">          volumes:</span><br><span class="line">          - name: &quot;persistent-storage&quot;</span><br><span class="line">            hostPath:</span><br><span class="line">              path: &quot;/data&quot;</span><br><span class="line">  	  containers:</span><br><span class="line">  	  - name: master</span><br><span class="line">  	    image: kubeguide/redis-master</span><br><span class="line">  	    ports:</span><br><span class="line">  	    - containerPort: 6379</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - name: &quot;persistent-storage&quot;</span><br><span class="line">              mountPath: &quot;/data&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="kubernetes安装路径及配置文件详解"><a href="#kubernetes安装路径及配置文件详解" class="headerlink" title="kubernetes安装路径及配置文件详解"></a>kubernetes安装路径及配置文件详解</h2><p>1./usr/bin<br>目录下为k8s 的可执行文件<br>2./usr/lib/systemd/system<br>目录下包含k8s的配置文件如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kube-apiserver.service           kubelet.service                  kube-scheduler.service           </span><br><span class="line">kube-controller-manager.service  kube-proxy.service</span><br></pre></td></tr></table></figure></p>
+<p>Master节点需求如下：<br>apiserver.service:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果etcd安装没问题 则修改 apiserver中的After=etcd.service Wants=etcd.service</span><br></pre></td></tr></table></figure></p>
+<p>controller-manage:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cm依赖于etcd 和apiserver</span><br><span class="line">Documentation 目录后</span><br><span class="line">After=etcd.service</span><br><span class="line">After=kube-apiserver.service</span><br><span class="line">Requires=etcd.service</span><br><span class="line">Requires=kube-apiserver.service</span><br></pre></td></tr></table></figure></p>
+<p>kube-scheduler.service:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">scheduler也依赖于etcd 和apiserver</span><br><span class="line">Documentation 目录后</span><br><span class="line">After=etcd.service</span><br><span class="line">After=kube-apiserver.service</span><br><span class="line">Requires=etcd.service</span><br><span class="line">Requires=kube-apiserver.service</span><br></pre></td></tr></table></figure></p>
+<p>Node节点需求如下：<br>kubelet.service ：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Documentation 目录后</span><br><span class="line">After=docker.service</span><br><span class="line">Requires=docker.service</span><br></pre></td></tr></table></figure></p>
+<p>kube-proxy.service ：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">该服务依赖于linux 的network</span><br><span class="line">Documentation 目录后</span><br><span class="line">After=network.target</span><br></pre></td></tr></table></figure></p>
+<p>3./etc/kubernetes<br>目录下为k8s 的配置文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apiserver           config              controller-manager  kubelet             proxy               scheduler</span><br></pre></td></tr></table></figure></p>
+<p>config:log设置，是否允许允许有特权模式的docker容器，master所在地址<br>apiserver:绑定主机的ip地址，端口号，etcd服务地址，Service所需Cluster ip池，一系列admission控制策略<br>controller-manager：无特别设置<br>scheduler：无特别设置<br>kubelet：绑定主机ip地址，端口号，apiserver地址及其他参数<br>proxy：无特别配置</p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者: <a href="http://jiangnan.in">John Doe</a>
+            <p>原文链接: <a href="http://jiangnan.in/2017/06/19/kubernetes-installed/">http://jiangnan.in/2017/06/19/kubernetes-installed/</a>
+            <p>发表日期: <a href="http://jiangnan.in/2017/06/19/kubernetes-installed/">June 19th 2017, 10:40:04 pm</a>
+            <p>版权声明: 本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/08/13/stormui-on-kerberos/" title= stormUI开启kerberos访问方式 >
+                    <div class="nextTitle">stormUI开启kerberos访问方式</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2017/06/19/binary-tree-path-sum/" title= 二叉树路径的和 >
+                    <div class="prevTitle">二叉树路径的和</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+        // id: "Kubernetes入门与基础组件简介", // 可选。默认为 location.href
+        owner: 'icoding',
+        repo: 'git@github.com:icoding/icoding.github.io.git',
+        oauth: {
+            client_id: '9c8110fcdd94e63acbaf',
+            client_secret: '2be5bb7f80e226ecaed8bfb431a56220eccb1c5c',
+        },
+    })
+    gitment.render('container')
+
+</script>
+
+    <!--PC和WAP自适应版-->
+
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="//github.com/icoding" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装-etcd-k8s-docker"><span class="toc-number">1.</span> <span class="toc-text">安装 etcd k8s docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装go环境"><span class="toc-number">2.</span> <span class="toc-text">安装go环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动服务"><span class="toc-number">3.</span> <span class="toc-text">启动服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hello-world-demo"><span class="toc-number">4.</span> <span class="toc-text">hello world demo</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建redis-master"><span class="toc-number">4.1.</span> <span class="toc-text">创建redis-master</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#创建replicationController"><span class="toc-number">4.1.1.</span> <span class="toc-text">创建replicationController</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#创建Service用于代理pod"><span class="toc-number">4.1.2.</span> <span class="toc-text">创建Service用于代理pod</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建frontend"><span class="toc-number">4.2.</span> <span class="toc-text">创建frontend</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他特性"><span class="toc-number">5.</span> <span class="toc-text">其他特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#namespace"><span class="toc-number">5.1.</span> <span class="toc-text">namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#volume"><span class="toc-number">5.2.</span> <span class="toc-text">volume</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kubernetes安装路径及配置文件详解"><span class="toc-number">6.</span> <span class="toc-text">kubernetes安装路径及配置文件详解</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 4
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span><a class="archive-post-title" href= "/2018/08/13/stormui-on-kerberos/" >stormUI开启kerberos访问方式</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/kubernetes-installed/" >Kubernetes入门与基础组件简介</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/binary-tree-path-sum/" >二叉树路径的和</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/31</span><a class="archive-post-title" href= "/2017/05/31/hello-world/" >Hello World</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+    
+        <span class="sidebar-tag-name" data-tags="数据结构"><span class="iconfont-archer">&#xe606;</span>数据结构</span>
+    
+        <span class="sidebar-tag-name" data-tags="lintcode"><span class="iconfont-archer">&#xe606;</span>lintcode</span>
+    
+        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
+    
+        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
+    
+        <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
+    
+        <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
+    
+        <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

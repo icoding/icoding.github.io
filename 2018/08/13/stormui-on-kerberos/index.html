@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    <meta name="keywords" content="Hexo | John Doe">
+    <meta name="description" content="">
+    <meta name="Cache-Control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>stormUI开启kerberos访问方式 · 江南</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180721 as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= /css/mobile.css?v=20180721 media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >江南.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">stormUI开启kerberos访问方式</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>江南.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:50vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            stormUI开启kerberos访问方式
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "storm">storm</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "kerberos">kerberos</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "hadoop">hadoop</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count">786</span> / Reading time: <span class="post-count">4 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/08/13</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h3 id="windows访问stormUI"><a href="#windows访问stormUI" class="headerlink" title="windows访问stormUI"></a>windows访问stormUI</h3><p>前提：请确保hosts文件已经配置好<br>参考文档:<br><a href="https://community.hortonworks.com/content/kbentry/28537/user-authentication-from-windows-workstation-to-hd.html" target="_blank" rel="noopener">https://community.hortonworks.com/content/kbentry/28537/user-authentication-from-windows-workstation-to-hd.html</a></p>
+<p>测试步骤：<br>安装MIT Kerberos客户端(windows版)<br>安装windows版火狐浏览器<br>在火狐中启用Kerberos支持<br>通过Kerberos客户端获得kerberos票据<br>通过火狐打开storm ui界面  </p>
+<h4 id="安装MIT-Kerberos客户端-windows版"><a href="#安装MIT-Kerberos客户端-windows版" class="headerlink" title="安装MIT Kerberos客户端(windows版)"></a>安装MIT Kerberos客户端(windows版)</h4><p>64位版下载地址：<a href="http://web.mit.edu/kerberos/dist/kfw/4.0/kfw-4.0.1-amd64.msi" target="_blank" rel="noopener">http://web.mit.edu/kerberos/dist/kfw/4.0/kfw-4.0.1-amd64.msi</a><br>安装的默认目录是C:\Program Files\MIT\Kerberos。<br>为避免意外使用complete模式安装,直接下一步即可。<br><img src="s-o-k1.png" alt=""></p>
+<h4 id="添加环境变量"><a href="#添加环境变量" class="headerlink" title="添加环境变量"></a>添加环境变量</h4><p>软件安装完成后它就自动的在 PATH 里面加上了自己的环境变量。<br>但是如果系统以及安装了oracle jdk ，那么oraclejdk里面也会带 kinit, ktab, klist 等软件，所以为了避免调用错误，将新建的kerberos环境变量放在前面。<br>如下：  C:\Program Files\MIT\Kerberos\bin;C:\ProgramData\Oracle\Java\javapath;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\;<br>如图：可以手动将windows环境变量中的安装的mit放到最前面。  </p>
+<h4 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h4><p>将HDP集群的/etc/krb5.conf复制到一个目录（该用户有该目录的权限）下，改名为krb5.ini。<br>在windows下添加两个环境变量：<br>KRB5_CONFIG=C:\etc\krb5.ini<br>KRB5CCNAME=C:\etc\tmp\krb5cache<br>其中etc\tmp目录必须有写权限  </p>
+<h4 id="使用keytab进行认证"><a href="#使用keytab进行认证" class="headerlink" title="使用keytab进行认证"></a>使用keytab进行认证</h4><p>hdp 集群中storm ui安装在100机器上，进入机器/etc/security/keytabs/目录<br>可以找到spnego.service.keytab、storm.headless.keytab<br>其中storm.headless.keytab对应princal 是<a href="mailto:storm-jn@JN.IN" target="_blank" rel="noopener">storm-jn@JN.IN</a> 对storm进行认证<br>spnego.service.keytab 对应princal 是<a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a><br>此处将这两个keytab下载到本地  </p>
+<p>在cmd中进行kinit操作<br>kinit -kt C:\etc\spnego.service.keytab <a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a></p>
+<h4 id="在火狐浏览器中验证"><a href="#在火狐浏览器中验证" class="headerlink" title="在火狐浏览器中验证"></a>在火狐浏览器中验证</h4><ol>
+<li>安装windows版火狐浏览器<br><strong>注意！此处验证使用的是32位浏览器，64位浏览器目前无法通过下述方式验证成功</strong>  </li>
+<li>在火狐中启用Kerberos支持<br>参考 <a href="http://storm.apache.org/releases/1.1.2/SECURITY.html#ui-logviewer" target="_blank" rel="noopener">http://storm.apache.org/releases/1.1.2/SECURITY.html#ui-logviewer</a><br><a href="https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.4/bk_security/content/secure-storm-ui.html" target="_blank" rel="noopener">https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.4/bk_security/content/secure-storm-ui.html</a><br>firefox 浏览器,输入 about:config 修改如下配置项  <ol>
+<li>network.negotiate-auth.trusted-uris = <a href="http://bgs-4p100-jiangnan:8744" target="_blank" rel="noopener">http://bgs-4p100-jiangnan:8744</a></li>
+<li>network.auth.use-sspi = false</li>
+<li>network.negotiate-auth.delegation.uris = <a href="http://bgs-4p100-jiangnan:8744" target="_blank" rel="noopener">http://bgs-4p100-jiangnan:8744</a></li>
+<li>network.negotiate-auth.using-native-gsslib = false</li>
+<li>network.negotiate-auth.gsslib = C:\Program Files\MIT\Kerberos\bin\gssapi32.dll</li>
+<li>network.negotiate-auth.allow-non-fqdn = true<br>如图：  </li>
+</ol>
+</li>
+<li>打开火狐输入地址：<a href="http://bgs-4p232-luojingzhi:8744/index.html" target="_blank" rel="noopener">http://bgs-4p232-luojingzhi:8744/index.html</a><br>如图</li>
+</ol>
+<h3 id="mac系统访问stormUI"><a href="#mac系统访问stormUI" class="headerlink" title="mac系统访问stormUI"></a>mac系统访问stormUI</h3><p>前提，本地配置好集群host</p>
+<h4 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h4><p>将HDP集群的/etc/krb5.conf 下载到本地，放置到/etc 目录下<br>如图：</p>
+<h4 id="使用keytab进行认证-1"><a href="#使用keytab进行认证-1" class="headerlink" title="使用keytab进行认证"></a>使用keytab进行认证</h4><p>hdp 集群中storm ui安装在100上，进入100   /etc/security/keytabs/<br>可以找到spnego.service.keytab、storm.headless.keytab<br>其中storm.headless.keytab对应princal 是<a href="mailto:storm-jn@JN.IN" target="_blank" rel="noopener">storm-jn@JN.IN</a> 对storm进行认证<br>spnego.service.keytab 对应princal 是<a href="mailto:HTTP/bgs-4p100-jiangnan@JN.IN" target="_blank" rel="noopener">HTTP/bgs-4p100-jiangnan@JN.IN</a><br>此处将这两个keytab下载到本地<br>使用kinit命令<br>kinit -kt storm.headless.keytab storm-bfdbdos</p>
+<h4 id="在safari浏览器中验证"><a href="#在safari浏览器中验证" class="headerlink" title="在safari浏览器中验证"></a>在safari浏览器中验证</h4><p>打开safari输入地址：<a href="http://bgs-4p100-jiangnan:8744/index.html" target="_blank" rel="noopener">http://bgs-4p100-jiangnan:8744/index.html</a><br>如图</p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者: <a href="http://jiangnan.in">John Doe</a>
+            <p>原文链接: <a href="http://jiangnan.in/2018/08/13/stormui-on-kerberos/">http://jiangnan.in/2018/08/13/stormui-on-kerberos/</a>
+            <p>发表日期: <a href="http://jiangnan.in/2018/08/13/stormui-on-kerberos/">August 13th 2018, 5:41:04 pm</a>
+            <p>版权声明: 本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2017/06/19/kubernetes-installed/" title= Kubernetes入门与基础组件简介 >
+                    <div class="prevTitle">Kubernetes入门与基础组件简介</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+        // id: "stormUI开启kerberos访问方式", // 可选。默认为 location.href
+        owner: 'icoding',
+        repo: 'git@github.com:icoding/icoding.github.io.git',
+        oauth: {
+            client_id: '9c8110fcdd94e63acbaf',
+            client_secret: '2be5bb7f80e226ecaed8bfb431a56220eccb1c5c',
+        },
+    })
+    gitment.render('container')
+
+</script>
+
+    <!--PC和WAP自适应版-->
+
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="//github.com/icoding" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#windows访问stormUI"><span class="toc-number">1.</span> <span class="toc-text">windows访问stormUI</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#安装MIT-Kerberos客户端-windows版"><span class="toc-number">1.1.</span> <span class="toc-text">安装MIT Kerberos客户端(windows版)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#添加环境变量"><span class="toc-number">1.2.</span> <span class="toc-text">添加环境变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#修改配置文件"><span class="toc-number">1.3.</span> <span class="toc-text">修改配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#使用keytab进行认证"><span class="toc-number">1.4.</span> <span class="toc-text">使用keytab进行认证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在火狐浏览器中验证"><span class="toc-number">1.5.</span> <span class="toc-text">在火狐浏览器中验证</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mac系统访问stormUI"><span class="toc-number">2.</span> <span class="toc-text">mac系统访问stormUI</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#配置环境"><span class="toc-number">2.1.</span> <span class="toc-text">配置环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#使用keytab进行认证-1"><span class="toc-number">2.2.</span> <span class="toc-text">使用keytab进行认证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在safari浏览器中验证"><span class="toc-number">2.3.</span> <span class="toc-text">在safari浏览器中验证</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 4
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span><a class="archive-post-title" href= "/2018/08/13/stormui-on-kerberos/" >stormUI开启kerberos访问方式</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/kubernetes-installed/" >Kubernetes入门与基础组件简介</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/binary-tree-path-sum/" >二叉树路径的和</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/31</span><a class="archive-post-title" href= "/2017/05/31/hello-world/" >Hello World</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+    
+        <span class="sidebar-tag-name" data-tags="数据结构"><span class="iconfont-archer">&#xe606;</span>数据结构</span>
+    
+        <span class="sidebar-tag-name" data-tags="lintcode"><span class="iconfont-archer">&#xe606;</span>lintcode</span>
+    
+        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
+    
+        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
+    
+        <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
+    
+        <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
+    
+        <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "John Doe"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
