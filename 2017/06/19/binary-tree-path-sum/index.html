@@ -524,13 +524,16 @@ height:50vh;
     <!-- 不蒜子  -->
     
     <div class="busuanzi-container">
-    
-     
-    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
-    
+    <!-- % var sloganPieces = theme.busuanzi_slug.split('${count}') % -->
+    <!-- % if(theme.busuanzi_pv_or_uv === 'pv') { % --> 
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>-_-</span>
+    <!-- % } else if (theme.busuanzi_pv_or_uv === 'uv') { % -->
+    <span id="busuanzi_container_site_uv">UV: <span id="busuanzi_value_site_uv"></span>-_-</span>
+    <!-- % } % -->
     </div>
     
 </footer>
+
     </div>
     <!-- toc -->
     
@@ -562,6 +565,8 @@ top:50vh;
     <div class="sidebar-content sidebar-content-show-archive">
           <div class="sidebar-panel-archives">
     <!-- 在ejs中将archive按照时间排序 -->
+    
+    
     
     
     
@@ -654,15 +659,15 @@ top:50vh;
     
         <span class="sidebar-tag-name" data-tags="lintcode"><span class="iconfont-archer">&#xe606;</span>lintcode</span>
     
+        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
+    
+        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
+    
         <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
     
         <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
     
         <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
-    
-        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
-    
-        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
