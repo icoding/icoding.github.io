@@ -71,6 +71,8 @@
     <link rel="preload" href= /css/style.css?v=20180721 as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <link rel="stylesheet" href= /css/mobile.css?v=20180721 media="(max-width: 980px)">
     
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -205,12 +207,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >江南.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name"></a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>江南.</a>
 </header>
@@ -224,24 +237,68 @@
 
 
 
+height:50vh;
+
 >
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+            [Untitled Post]
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count">506</span> / Reading time: <span class="post-count">2 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/08/28</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -342,33 +399,73 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2017/05/31/hello-world/" >
-            
-                <span>Hello World</span>
-        </a>
-        <div class="abstract-content">
-            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any ...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2017/05/31</span>
-            </div>
-            <!-- tags  -->
-            
-        </div>
+            <main class="main post-page">
+    <article class="article-entry">
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>笔者对于guava这个库断断续续用了好些年，12年的时候就已经在使用guava的Localcache用来做本地cache了，可惜一直没有深入的用好它。<br>这么多年写代码的时候总是想着把guava加到pom中去，但是却仅仅使用他的一小部分特性，比如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; = Lists.newArrayList();</span><br></pre></td></tr></table></figure></p>
+<p>当然这也是我最喜欢的特性之一，代码简洁。众多大神都有写过guava的教程，这次希望开一套博客来从自己的角度来讲解下guava，一是加深下个人对guava的理解，二是与大家交流学习心得。</p>
+<h3 id="源码简介"><a href="#源码简介" class="headerlink" title="源码简介"></a>源码简介</h3><p>guava当前的最新版本为8月份发布的v2.6-release，本系列博客就以v2.6版本入手讲解下guava的常规应用场景，以及功能实现的思路。 （虽然我们项目中还在用18或14版本、、）<br>git 地址：<a href="https://github.com/google/guava" target="_blank" rel="noopener">https://github.com/google/guava</a>  </p>
+<h5 id="包目录："><a href="#包目录：" class="headerlink" title="包目录："></a>包目录：</h5><blockquote>
+<p>com/google/common/annotations: 注解类型，主要是guava内部使用的注解<br>com/google/common/base: 基础工具类和相关接口，如字符串操作、函数式编程等<br>com/google/common/cache: 缓存相关工具，包含一系列缓存的策略<br>com/google/common/collect: 集合相关的工具类<br>com/google/common/escape: 转义工具包，供字符转义使用<br>com/google/common/eventbus:事件总线，观察者模式的一种优雅实现<br>com/google/common/graph:图结构相关的工具<br>com/google/common/hash:哈希相关工具<br>com/google/common/html:看注解还是beta版本，只提供了html的转义工具<br>com/google/common/io:io相关的工具类<br>com/google/common/math:数学计算相关工具<br>com/google/common/net:网络相关工具<br>com/google/common/primitives:原语支持工具<br>com/google/common/reflect:反射相关工具支持<br>com/google/common/util/concurrent:并发包相关工具<br>com/google/common/xml:beta版，和html一样，提供了xml的转义工具  </p>
+</blockquote>
+<h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><p><a href="https://github.com/google/guava/wiki" target="_blank" rel="noopener">https://github.com/google/guava/wiki</a><br><a href="http://www.cnblogs.com/peida/archive/2013/06/08/3120820.html" target="_blank" rel="noopener">http://www.cnblogs.com/peida/archive/2013/06/08/3120820.html</a></p>
+
     </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者: <a href="http://jiangnan.in">JiangNan</a>
+            <p>原文链接: <a href="http://jiangnan.in/2018/08/28/guava-tutorial-introduce/">http://jiangnan.in/2018/08/28/guava-tutorial-introduce/</a>
+            <p>发表日期: <a href="http://jiangnan.in/2018/08/28/guava-tutorial-introduce/">August 28th 2018, 11:54:06 pm</a>
+            <p>版权声明: 本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
     
     <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/08/13/stormui-on-kerberos/" title= stormUI开启kerberos访问方式 >
+                    <div class="prevTitle">stormUI开启kerberos访问方式</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
+    
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+        id: '', // 可选。默认为 location.href
+        owner: 'icoding',
+        repo: 'icoding.github.io',
+        oauth: {
+            client_id: '9c8110fcdd94e63acbaf',
+            client_secret: '2be5bb7f80e226ecaed8bfb431a56220eccb1c5c',
+        },
+    })
+    gitment.render('container')
+
+</script>
+
+
+    <!--PC和WAP自适应版-->
+
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -439,6 +536,24 @@
 
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码简介"><span class="toc-number">2.</span> <span class="toc-text">源码简介</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#包目录："><span class="toc-number">2.0.1.</span> <span class="toc-text">包目录：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考文档"><span class="toc-number">2.1.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -659,6 +774,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
      
     </body>
 </html>
