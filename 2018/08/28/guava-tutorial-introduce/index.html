@@ -404,7 +404,7 @@ height:50vh;
         <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>笔者对于guava这个库断断续续用了好些年，12年的时候就已经在使用guava的Localcache用来做本地cache了，可惜一直没有深入的用好它。<br>这么多年写代码的时候总是想着把guava加到pom中去，但是却仅仅使用他的一小部分特性，比如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; = Lists.newArrayList();</span><br></pre></td></tr></table></figure></p>
 <p>当然这也是我最喜欢的特性之一，代码简洁。众多大神都有写过guava的教程，这次希望开一套博客来从自己的角度来讲解下guava，一是加深下个人对guava的理解，二是与大家交流学习心得。</p>
 <h3 id="源码简介"><a href="#源码简介" class="headerlink" title="源码简介"></a>源码简介</h3><p>guava当前的最新版本为8月份发布的v2.6-release，本系列博客就以v2.6版本入手讲解下guava的常规应用场景，以及功能实现的思路。 （虽然我们项目中还在用18或14版本、、）<br>git 地址：<a href="https://github.com/google/guava" target="_blank" rel="noopener">https://github.com/google/guava</a>  </p>
-<h5 id="包目录："><a href="#包目录：" class="headerlink" title="包目录："></a>包目录：</h5><blockquote>
+<h4 id="包目录："><a href="#包目录：" class="headerlink" title="包目录："></a>包目录：</h4><blockquote>
 <p>com/google/common/annotations: 注解类型，主要是guava内部使用的注解<br>com/google/common/base: 基础工具类和相关接口，如字符串操作、函数式编程等<br>com/google/common/cache: 缓存相关工具，包含一系列缓存的策略<br>com/google/common/collect: 集合相关的工具类<br>com/google/common/escape: 转义工具包，供字符转义使用<br>com/google/common/eventbus:事件总线，观察者模式的一种优雅实现<br>com/google/common/graph:图结构相关的工具<br>com/google/common/hash:哈希相关工具<br>com/google/common/html:看注解还是beta版本，只提供了html的转义工具<br>com/google/common/io:io相关的工具类<br>com/google/common/math:数学计算相关工具<br>com/google/common/net:网络相关工具<br>com/google/common/primitives:原语支持工具<br>com/google/common/reflect:反射相关工具支持<br>com/google/common/util/concurrent:并发包相关工具<br>com/google/common/xml:beta版，和html一样，提供了xml的转义工具  </p>
 </blockquote>
 <h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><p><a href="https://github.com/google/guava/wiki" target="_blank" rel="noopener">https://github.com/google/guava/wiki</a><br><a href="http://www.cnblogs.com/peida/archive/2013/06/08/3120820.html" target="_blank" rel="noopener">http://www.cnblogs.com/peida/archive/2013/06/08/3120820.html</a></p>
@@ -552,7 +552,7 @@ top:50vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码简介"><span class="toc-number">2.</span> <span class="toc-text">源码简介</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#包目录："><span class="toc-number">2.0.1.</span> <span class="toc-text">包目录：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考文档"><span class="toc-number">2.1.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码简介"><span class="toc-number">2.</span> <span class="toc-text">源码简介</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#包目录："><span class="toc-number">2.1.</span> <span class="toc-text">包目录：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考文档"><span class="toc-number">2.2.</span> <span class="toc-text">参考文档</span></a></li></ol></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
@@ -650,6 +650,16 @@ top:50vh;
         </li>
     
     
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/binary-tree-path-sum/" >二叉树路径的和</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/31</span><a class="archive-post-title" href= "/2017/05/31/hello-world/" >Hello World</a>
+        </li>
+    
+    
     
     
     
@@ -663,25 +673,6 @@ top:50vh;
             <span class="archive-post-date">Invalid date</span><a class="archive-post-title" href= "/2018/08/28/guava-tutorial-introduce/" >[Untitled Post]</a>
         </li>
     
-    
-    
-    
-    
-        </ul>
-    
-    <div class="archive-year"> 2017 </div>
-    <ul class="year-list">
-    
-    
-        <li class="archive-post-item">
-            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/binary-tree-path-sum/" >二叉树路径的和</a>
-        </li>
-    
-    
-        <li class="archive-post-item">
-            <span class="archive-post-date">05/31</span><a class="archive-post-title" href= "/2017/05/31/hello-world/" >Hello World</a>
-        </li>
-    
     </div>
   </div>
         <div class="sidebar-panel-tags">
@@ -693,19 +684,15 @@ top:50vh;
     
         <span class="sidebar-tag-name" data-tags="lintcode"><span class="iconfont-archer">&#xe606;</span>lintcode</span>
     
-        <span class="sidebar-tag-name" data-tags="java"><span class="iconfont-archer">&#xe606;</span>java</span>
-    
-        <span class="sidebar-tag-name" data-tags="guava"><span class="iconfont-archer">&#xe606;</span>guava</span>
-    
-        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
-    
-        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
-    
         <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
     
         <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
     
         <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
+    
+        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
+    
+        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
