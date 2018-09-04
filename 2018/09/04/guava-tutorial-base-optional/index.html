@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="JiangNan">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="JiangNan">
+    <meta name="keywords" content="江南 | JiangNan">
+    <meta name="description" content="">
+    <meta name="Cache-Control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Guava基础使用之base篇-Optional介绍 · 江南</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180721 as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= /css/mobile.css?v=20180721 media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+    <script>
+        (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+        ga('create', 'UA-124483448-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >江南.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Guava基础使用之base篇-Optional介绍</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>江南.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:50vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Guava基础使用之base篇-Optional介绍
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "java">java</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "guava">guava</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count">3,289</span> / Reading time: <span class="post-count">15 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2018/09/04</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Optional现在大家应该都很熟悉，java8现在就已经支持Optional了，但是在jdk6、jdk7的年代，jdk是没有这样的处理方式的，google就超前的提供了Optional的支持。<br>其实不仅仅是Optional，包括Predicate、函数式编程等，都是在java8中一一得到内置的功能。不得不说，google这家公司真是厉害。</p>
+<h3 id="Optional解决的问题"><a href="#Optional解决的问题" class="headerlink" title="Optional解决的问题"></a>Optional解决的问题</h3><p>用一句话来说明Optional真正的要解决的问题那就是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">引导程序员员主动思考引用为null该如何处理！</span><br></pre></td></tr></table></figure></p>
+<p>让我们来理解下这句话的意思：</p>
+<blockquote>
+<p>大家都听过Optional是用来解决空指针异常的，那么为什么会出现空指针异常呢？<br>因为除了基本类型，其他的类型对象在初始化的时候就是null，如果忘记对该对象赋值，或者因为其他原因没能正确赋值，那么在使用对象操作其方法的时候就会出现最常见的空指针异常。  </p>
+</blockquote>
+<blockquote>
+<p>为什么Optional就解决了空指针异常呢？<br>其实Optional也没有解决这个异常，只是把对象封装了，你可以通过api的方式知道他是null或者不是null，而不是用以前的 if(obj == null) 这种样板代码来污染你整洁的业务逻辑。<br>所以我觉得与其说他解决了空指针异常的问题，倒不如说是用来引导程序员主动思考。<br>因为如果你看到了某个方法返回的对象是Optional封装的，那么他肯定是会有null的情况，你需要去做相应的处理，而不是像以前那样看见一个对象根本就没有想过他是否为null而直接去使用，或者机械的不管会不会返回null都去增加if的判断。  </p>
+</blockquote>
+<p>说到这里，大家应该对Optional有些了解了，起码知道如果发现某个程序返回了Optional或者传入了Optional，一定会有“嗯、、这个对象有猫腻，哥要好好弄弄他、、”这个心理活动。    </p>
+<h3 id="Optional使用方法及场景"><a href="#Optional使用方法及场景" class="headerlink" title="Optional使用方法及场景"></a>Optional使用方法及场景</h3><p>说完了解决的问题，让我们来看看具体的使用方法。</p>
+<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>我们从api角度来具体讲解使用方法</p>
+<h5 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h5><p>Optional目前有4种创建实例的方式  </p>
+<blockquote>
+<p>absent  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 初始化一个空的Optional</span><br><span class="line"> * 在使用的时候会抛出IllegalStateException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void absent()&#123;</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.absent();</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>of  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 初始化一个Optional</span><br><span class="line"> * 如果初始化的值为空会直接抛NullPointerException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void of()&#123;</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.of(new OptionalObject(1,2));</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo1 = Optional.of(null);</span><br><span class="line">    System.out.println(oo1.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>fromNullable</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 初始化一个Optional</span><br><span class="line"> * 允许初始化的值为空</span><br><span class="line"> * 如果初始化的值为空，在使用的时候会抛出IllegalStateException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void fromNullable()&#123;</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>fromJavaUtil  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> /**</span><br><span class="line"> * 初始化一个Optional</span><br><span class="line"> * 基于java8的java.util.Optional</span><br><span class="line"> * 如果初始化的值为空，在使用的时候会抛出IllegalStateException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void fromJavaUtil()&#123;</span><br><span class="line">    java.util.Optional&lt;OptionalObject&gt; optionalObject = java.util.Optional.empty();</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.fromJavaUtil(optionalObject);</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="方法应用"><a href="#方法应用" class="headerlink" title="方法应用"></a>方法应用</h5><blockquote>
+<p>isPresent，get</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//判断包装的实例是否有值，等同于 if(object == null)</span><br><span class="line">if(oo.isPresent())&#123;</span><br><span class="line">    System.out.println(&quot;of:&quot; + oo.get());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(new OptionalObject(1,2));</span><br><span class="line">······</span><br><span class="line">of:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">······</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>or</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">//获取初始化的OptionalObject实例，如果OptionalObject为空获取预置的OptionalObject实例</span><br><span class="line">System.out.println(&quot;or:&quot; + oo.or(new OptionalObject(3,4)).getM());</span><br><span class="line"></span><br><span class="line">//获取初始化的OptionalObject实例，如果OptionalObject为空获取预置的Optional&lt;OptionalObject&gt;对象</span><br><span class="line">System.out.println(&quot;or:&quot; + oo.or(Optional.of(new OptionalObject(5,6))).get());</span><br><span class="line"></span><br><span class="line">//获取初始化的OptionalObject实例，如果OptionalObject为空获取预置的函数，并返回OptionalObject实例</span><br><span class="line">System.out.println(&quot;or supplier:&quot; + oo.or(()-&gt;new OptionalObject(7,8)));</span><br><span class="line">System.out.println(&quot;or supplier:&quot; + oo.or(new Supplier&lt;OptionalObject&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public OptionalObject get() &#123;</span><br><span class="line">        return new OptionalObject(9,8);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(new OptionalObject(1,2));</span><br><span class="line">······</span><br><span class="line">or:1</span><br><span class="line">or:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line">or supplier:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line">or supplier:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">······</span><br><span class="line">or:3</span><br><span class="line">or:OptionalObject&#123;m=5, n=6&#125;</span><br><span class="line">or supplier:OptionalObject&#123;m=7, n=8&#125;</span><br><span class="line">or supplier:OptionalObject&#123;m=9, n=8&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>3个or 方法的区别</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">oo.or(new OptionalObject(3,4))和oo.or(Optional.of(new OptionalObject(5,6)))</span><br><span class="line">不管预置的值是否为null，都会调用方法内的对象进行实例化</span><br><span class="line">而oo.or(new Supplier&lt;OptionalObject&gt;()) 则是以懒加载的方式，只有为null的时候才会初始化传入的对象</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>orNull</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//获取初始化的OptionalObject实例，如果OptionalObject为空获则返回null</span><br><span class="line">System.out.println(&quot;orNull:&quot; + oo.orNull());</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(new OptionalObject(1,2));</span><br><span class="line">······</span><br><span class="line">orNull:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">······</span><br><span class="line">orNull:null</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>toJavaUtil</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//转换为java.util.Optional对象</span><br><span class="line">System.out.println(&quot;toJavaUtil get:&quot; + oo.toJavaUtil());</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(new OptionalObject(1,2));</span><br><span class="line">······</span><br><span class="line">toJavaUtil get:Optional[OptionalObject&#123;m=1, n=2&#125;]</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">······</span><br><span class="line">toJavaUtil get:Optional.empty</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>asSet</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//转换为Set&lt;OptionalObject&gt;</span><br><span class="line">System.out.println(&quot;asSet:&quot; + oo.asSet());</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(new OptionalObject(1,2));</span><br><span class="line">······</span><br><span class="line">asSet:[OptionalObject&#123;m=1, n=2&#125;]</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">······</span><br><span class="line">asSet:[]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>transform</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">//传入一个函数，基于初始化的OptionalObject实例做任意业务逻辑，返回任意包装过的Optional实例</span><br><span class="line">//初始化的OptionalObject实例如果为null，则返回一个基于absent初始化的Optional实例</span><br><span class="line">System.out.println(&quot;transform get:&quot; + oo.transform((optionalObject)-&gt; optionalObject.getM()==1?&quot;a&quot;:&quot;b&quot;));</span><br><span class="line">System.out.println(&quot;transform get:&quot; + oo.transform(new Function&lt;OptionalObject, Object&gt;() &#123;</span><br><span class="line">    @Nullable</span><br><span class="line">    @Override</span><br><span class="line">    public Object apply(@Nullable OptionalObject optionalObject) &#123;</span><br><span class="line">        return optionalObject.getM()==1?&quot;a&quot;:&quot;b&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(new OptionalObject(1,2));</span><br><span class="line">······</span><br><span class="line">transform get:Optional.of(a)</span><br><span class="line">transform get:Optional.of(a)</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.fromNullable(null);</span><br><span class="line">······</span><br><span class="line">transform get:Optional.absent()</span><br><span class="line">transform get:Optional.absent()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>presentInstances  </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//移除list中Optional为Null的对象，并返回一个Iterable</span><br><span class="line">List&lt;Optional&lt;OptionalObject&gt;&gt; list = Lists.newArrayList();</span><br><span class="line">list.add(Optional.fromNullable(new OptionalObject(1,2)));</span><br><span class="line">list.add(Optional.fromNullable(new OptionalObject(3,4)));</span><br><span class="line">list.add(Optional.fromNullable(null));</span><br><span class="line">Iterable&lt;OptionalObject&gt; it = Optional.presentInstances(list);</span><br><span class="line">it.forEach(new Consumer&lt;OptionalObject&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void accept(OptionalObject optionalObject) &#123;</span><br><span class="line">        System.out.println(&quot;presentInstances:&quot;+optionalObject);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">//presentInstances结果</span><br><span class="line">presentInstances:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line">presentInstances:OptionalObject&#123;m=3, n=4&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="java8中Optional的使用"><a href="#java8中Optional的使用" class="headerlink" title="java8中Optional的使用"></a>java8中Optional的使用</h3><p>让我们把时间线切到java8发布后…  </p>
+<p>java8已经支持了Optional，如果没有别的必要或需求，我们现在写代码的时候已经不需要故意引入一个guava了，让我们来看看java8中如何使用Optional的  </p>
+<h4 id="初始化-1"><a href="#初始化-1" class="headerlink" title="初始化"></a>初始化</h4><p>java8原生的有3个初始化方法，基本和guava匹配</p>
+<blockquote>
+<p>empty</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 初始化一个空的Optional</span><br><span class="line"> * 在使用的时候会抛出IllegalStateException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void empty()&#123;</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.empty();</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>of</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 初始化一个Optional</span><br><span class="line"> * 如果初始化的值为空会直接抛NullPointerException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void of()&#123;</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.of(new OptionalObject(1,2));</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo1 = Optional.of(null);</span><br><span class="line">    System.out.println(oo1.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ofNullable</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 初始化一个Optional</span><br><span class="line"> * 允许初始化的值为空</span><br><span class="line"> * 如果初始化的值为空，在使用的时候会抛出IllegalStateException异常</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void ofNullable()&#123;</span><br><span class="line">    Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">    System.out.println(oo.get());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="方法应用-1"><a href="#方法应用-1" class="headerlink" title="方法应用"></a>方法应用</h4><p>java8中的Optional应用和guava也基本类似，额外提供了map、flatmap、filter等函数式方法<br>其中map、flatmap可以理解为对应transform，filter可以理解为对应presentInstances</p>
+<blockquote>
+<p>isPresent</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//判断包装的实例是否有值，等同于 if(object == null)</span><br><span class="line">if(oo.isPresent())&#123;</span><br><span class="line">    System.out.println(&quot;of:&quot; + oo.get());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">of:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ifPresent ，isPresent的扩展使用</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">//传入一个函数，如果包装的对象不为null则执行该函数，否则不执行该函数</span><br><span class="line">//等同于</span><br><span class="line">// if(oo.isPresent())&#123;</span><br><span class="line">//      System.out.println(&quot;of:&quot; + oo.get());</span><br><span class="line">// &#125;</span><br><span class="line">oo.ifPresent(optionalObject -&gt; System.out.println(&quot;ifPresent:&quot;+optionalObject));</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">ifPresent:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>orElse</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//获取初始化的OptionalObject实例</span><br><span class="line">//如果OptionalObject为空，则获取预置的OptionalObject实例</span><br><span class="line">System.out.println(&quot;orElse:&quot; + oo.orElse(new OptionalObject(3,4)).getM());</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">orElse:1</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br><span class="line">orElse:3</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>orElseGet</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//获取初始化的OptionalObject实例</span><br><span class="line">//如果OptionalObject为空，则获取预置的函数，并返回OptionalObject实例</span><br><span class="line">System.out.println(&quot;orElseGet:&quot; + oo.orElseGet(()-&gt;new OptionalObject(7,8)).getM());</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">orElseGet:1</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br><span class="line">orElseGet:7</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>orElse 和 orElseGet 的区别<br>这两个方法看似相同，都是为了在内部对象为null的时候获取一个默认值，<br>但是当内部对象不为null到时候他们的内部是孑然不同的机制.<br>orElse 每次都会调用传入的方法，而orElseGet则不会每次调用。二者在此会有性能上的差异。<br>可以看到 orElseGet和guava的or(supplier)是一样的</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// 我们将OptionalObject构造方法增加如下语句</span><br><span class="line">public OptionalObject(int m, int n)&#123;</span><br><span class="line">        System.out.println(&quot;init :&quot;+m+&quot; &quot;+n);</span><br><span class="line">        this.m = m;</span><br><span class="line">        this.n = n;</span><br><span class="line">    &#125;</span><br><span class="line">//执行如下代码的时候</span><br><span class="line">@Test</span><br><span class="line">    public void testElse()&#123;</span><br><span class="line">        Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">        System.out.println(&quot;orElse:&quot; + oo.orElse(new OptionalObject(3,4)).getM());</span><br><span class="line"></span><br><span class="line">        System.out.println(&quot;orElseGet:&quot; + oo.orElseGet(()-&gt;new OptionalObject(7,8)).getM());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">//结果如下：</span><br><span class="line">init :1 2</span><br><span class="line">init :3 4</span><br><span class="line">orElse:1</span><br><span class="line">orElseGet:1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>orElseThrow</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 如果OptionalObject为空，则抛指定的异常</span><br><span class="line">System.out.println(&quot;orElseThrow:&quot; + oo.orElseThrow(()-&gt;new NullPointerException()));</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">orElseThrow:OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br><span class="line">java.lang.NullPointerException</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>filter</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//通过filter筛选符合条件的值</span><br><span class="line">//如果没有符合条件的则抛java.util.NoSuchElementException异常</span><br><span class="line">System.out.println(oo.filter(optionalObject -&gt; optionalObject.getM()==1).get());</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">OptionalObject&#123;m=1, n=2&#125;</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br><span class="line">java.util.NoSuchElementException: No value present</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>map</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//对内部实例的属性进行操作</span><br><span class="line">//其中操作的对象为OptionalObject对象</span><br><span class="line">int v_map = oo.map(optionalObject -&gt; optionalObject.getM()+1)</span><br><span class="line">        .map(m-&gt;m+2)</span><br><span class="line">        .get();</span><br><span class="line">System.out.println(&quot;v_map:&quot;+v_map);</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">v_map:4</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br><span class="line">java.util.NoSuchElementException: No value present</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>flatMap</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//对内部实例的属性进行操作</span><br><span class="line">//其中操作的对象为Optional&lt;OptionalObject&gt;对象</span><br><span class="line">int v_flatmap = oo.flatMap(optionalObject -&gt; Optional.of(optionalObject.getM()+1))</span><br><span class="line">        .flatMap(m-&gt;Optional.of(m+2))</span><br><span class="line">        .get();</span><br><span class="line">System.out.println(&quot;v_flatmap:&quot;+v_flatmap);</span><br><span class="line"></span><br><span class="line">//初始化非null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(new OptionalObject(1,2));</span><br><span class="line">···</span><br><span class="line">v_flatmap:4</span><br><span class="line"></span><br><span class="line">//初始化为null情况下输出</span><br><span class="line">Optional&lt;OptionalObject&gt; oo = Optional.ofNullable(null);</span><br><span class="line">···</span><br><span class="line">java.util.NoSuchElementException: No value present</span><br></pre></td></tr></table></figure>
+<h4 id="使用场景，java8、guava区别？"><a href="#使用场景，java8、guava区别？" class="headerlink" title="使用场景，java8、guava区别？"></a>使用场景，java8、guava区别？</h4><p>Optional解决的问题大家已经知道了，所以最佳使用地点其实也是很清晰，那就是方法的返回值。</p>
+<p>既然java8现在已经支持了Optional，为什么还要使用guava呢？<br>他们有个最大的区别就是guava中的Optional是可系列化的，而java中的是不可序列化的。<br>所以java的Optional是不能作用在字段上的，而guava的则可以在字段上作用。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本篇博客大概写了4、5天时间，基本都是每天晚上写，开始只是想写关于guava的Optional，后来想对比下java中的Optional，所以篇幅长了一些，在这期间查了不少资料，也从对Optional迷迷糊糊的了解，到现在算是比较熟悉，希望大家看完后也能有所收货。</p>
+<h3 id="本篇博客代码地址"><a href="#本篇博客代码地址" class="headerlink" title="本篇博客代码地址"></a>本篇博客代码地址</h3><p>github:<br><a href="https://github.com/icoding/guavaLearn/blob/master/src/main/java/in/jn/guava/base/OptionalTest.java" target="_blank" rel="noopener">https://github.com/icoding/guavaLearn/blob/master/src/main/java/in/jn/guava/base/OptionalTest.java</a><br><a href="https://github.com/icoding/guavaLearn/blob/master/src/main/java/in/jn/guava/base/Optional8Test.java" target="_blank" rel="noopener">https://github.com/icoding/guavaLearn/blob/master/src/main/java/in/jn/guava/base/Optional8Test.java</a></p>
+<h3 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h3><p><a href="https://github.com/google/guava/wiki" target="_blank" rel="noopener">https://github.com/google/guava/wiki</a><br><a href="https://www.cnblogs.com/zhangboyu/p/7580262.html" target="_blank" rel="noopener">https://www.cnblogs.com/zhangboyu/p/7580262.html</a><br><a href="https://www.cnblogs.com/woshimrf/p/java-optional-usage-note.html" target="_blank" rel="noopener">https://www.cnblogs.com/woshimrf/p/java-optional-usage-note.html</a></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者: <a href="http://jiangnan.in">JiangNan</a>
+            <p>原文链接: <a href="http://jiangnan.in/2018/09/04/guava-tutorial-base-optional/">http://jiangnan.in/2018/09/04/guava-tutorial-base-optional/</a>
+            <p>发表日期: <a href="http://jiangnan.in/2018/09/04/guava-tutorial-base-optional/">September 4th 2018, 11:30:03 pm</a>
+            <p>版权声明: 本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/08/28/guava-tutorial-introduce/" title= Guava基础使用之介绍篇 >
+                    <div class="prevTitle">Guava基础使用之介绍篇</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+        id: 'Guava基础使用之base篇-Optional介绍', // 可选。默认为 location.href
+        owner: 'icoding',
+        repo: 'icoding.github.io',
+        oauth: {
+            client_id: '9c8110fcdd94e63acbaf',
+            client_secret: '2be5bb7f80e226ecaed8bfb431a56220eccb1c5c',
+        },
+    })
+    gitment.render('container')
+
+</script>
+
+
+    <!--PC和WAP自适应版-->
+
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="//github.com/icoding" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    <!-- % var sloganPieces = theme.busuanzi_slug.split('${count}') % -->
+    <!-- % if(theme.busuanzi_pv_or_uv === 'pv') { % --> 
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>-_-</span>
+    <!-- % } else if (theme.busuanzi_pv_or_uv === 'uv') { % -->
+    <span id="busuanzi_container_site_uv">UV: <span id="busuanzi_value_site_uv"></span>-_-</span>
+
+<span id="busuanzi_container_page_pv">CV: <span id="busuanzi_value_page_pv"></span>-_-</span>
+    <!-- % } % -->
+    </div>
+    
+</footer>
+
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Optional解决的问题"><span class="toc-number">2.</span> <span class="toc-text">Optional解决的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Optional使用方法及场景"><span class="toc-number">3.</span> <span class="toc-text">Optional使用方法及场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#使用方法"><span class="toc-number">3.1.</span> <span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#初始化"><span class="toc-number">3.1.1.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法应用"><span class="toc-number">3.1.2.</span> <span class="toc-text">方法应用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java8中Optional的使用"><span class="toc-number">4.</span> <span class="toc-text">java8中Optional的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#初始化-1"><span class="toc-number">4.1.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法应用-1"><span class="toc-number">4.2.</span> <span class="toc-text">方法应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#使用场景，java8、guava区别？"><span class="toc-number">4.3.</span> <span class="toc-text">使用场景，java8、guava区别？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本篇博客代码地址"><span class="toc-number">6.</span> <span class="toc-text">本篇博客代码地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考博客"><span class="toc-number">7.</span> <span class="toc-text">参考博客</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 6
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/guava-tutorial-base-optional/" >Guava基础使用之base篇-Optional介绍</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/28</span><a class="archive-post-title" href= "/2018/08/28/guava-tutorial-introduce/" >Guava基础使用之介绍篇</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span><a class="archive-post-title" href= "/2018/08/13/stormui-on-kerberos/" >stormUI开启kerberos访问方式</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/kubernetes-installed/" >Kubernetes入门与基础组件简介</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/19</span><a class="archive-post-title" href= "/2017/06/19/binary-tree-path-sum/" >二叉树路径的和</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/31</span><a class="archive-post-title" href= "/2017/05/31/hello-world/" >Hello World</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="java"><span class="iconfont-archer">&#xe606;</span>java</span>
+    
+        <span class="sidebar-tag-name" data-tags="guava"><span class="iconfont-archer">&#xe606;</span>guava</span>
+    
+        <span class="sidebar-tag-name" data-tags="算法"><span class="iconfont-archer">&#xe606;</span>算法</span>
+    
+        <span class="sidebar-tag-name" data-tags="数据结构"><span class="iconfont-archer">&#xe606;</span>数据结构</span>
+    
+        <span class="sidebar-tag-name" data-tags="lintcode"><span class="iconfont-archer">&#xe606;</span>lintcode</span>
+    
+        <span class="sidebar-tag-name" data-tags="kubernetes"><span class="iconfont-archer">&#xe606;</span>kubernetes</span>
+    
+        <span class="sidebar-tag-name" data-tags="docker"><span class="iconfont-archer">&#xe606;</span>docker</span>
+    
+        <span class="sidebar-tag-name" data-tags="storm"><span class="iconfont-archer">&#xe606;</span>storm</span>
+    
+        <span class="sidebar-tag-name" data-tags="kerberos"><span class="iconfont-archer">&#xe606;</span>kerberos</span>
+    
+        <span class="sidebar-tag-name" data-tags="hadoop"><span class="iconfont-archer">&#xe606;</span>hadoop</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="技术"><span class="iconfont-archer">&#xe60a;</span>技术</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "JiangNan"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
